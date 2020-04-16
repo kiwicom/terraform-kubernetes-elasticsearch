@@ -1,0 +1,12 @@
+nodeGroup: "client"
+
+roles:
+  master: "false"
+  ingest: "false"
+  data: "false"
+
+volumeClaimTemplate:
+  accessModes: [ "ReadWriteOnce" ]
+
+persistence:
+  enabled: false
