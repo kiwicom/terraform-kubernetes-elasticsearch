@@ -1,7 +1,13 @@
+variable "helm_install_timeout" {
+  type        = number
+  default     = 300
+  description = "Time in seconds to wait for any individual kubernetes operation (like Jobs for hooks)"
+}
+
 variable "cluster_name" {
   type        = string
   default     = "elasticsearch-cluster"
-  description = "Elasticsearch cluster name and relase name"
+  description = "Elasticsearch cluster name and release name"
 }
 
 variable "node_group" {
@@ -12,19 +18,13 @@ variable "node_group" {
 
 variable "es_version" {
   type        = string
-  description = "Elasticsearch version (6.4.2+, 7.0.0+)"
+  description = "Elasticsearch version"
 }
 
 variable "namespace" {
   type        = string
   default     = "storage"
   description = "Namespace in which service will be deployed"
-}
-
-variable "helm_install_timeout" {
-  type        = number
-  default     = 900
-  description = "Time in seconds to wait for any individual kubernetes operation (like Jobs for hooks)"
 }
 
 variable "replicas" {

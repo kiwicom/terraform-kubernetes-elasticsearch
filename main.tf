@@ -1,13 +1,9 @@
-// https://github.com/elastic/helm-charts/tree/master/elasticsearch
 data "helm_repository" "elastic" {
   name = "elastic"
   url  = "https://helm.elastic.co"
 }
 
-// TODO: https://github.com/elastic/helm-charts/tree/master/kibana
-
-// TODO: setup datadog
-
+// https://github.com/elastic/helm-charts/tree/master/elasticsearch
 resource "helm_release" "elasticsearch" {
   name       = "${var.cluster_name}-${var.node_group}"
   repository = data.helm_repository.elastic.metadata[0].name
