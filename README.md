@@ -21,7 +21,7 @@ resource "kubernetes_storage_class" "es_ssd" {
 }
 
 module "elasticsearch_client" {
-  source                = "./elasticsearch"
+  source                = "kiwicom/kubernetes/elasticsearch"
   cluster_name          = local.cluster_name
   node_group            = "client"
   es_version            = local.es_version
@@ -33,7 +33,7 @@ module "elasticsearch_client" {
 }
 
 module "elasticsearch_master" {
-  source                = "./elasticsearch"
+  source                = "kiwicom/namespace/elasticsearch"
   node_group            = "master"
   cluster_name          = local.cluster_name
   es_version            = local.es_version
@@ -45,7 +45,7 @@ module "elasticsearch_master" {
 }
 
 module "elasticsearch_data" {
-  source                = "./elasticsearch"
+  source                = "kiwicom/namespace/elasticsearch"
   node_group            = "data"
   cluster_name          = local.cluster_name
   es_version            = local.es_version
