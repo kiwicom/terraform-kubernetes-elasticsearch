@@ -1,5 +1,7 @@
 # terraform-kubernetes-elasticsearch
 
+Elasticsearch module for Kubernetes based on [elastic Helm charts](https://github.com/elastic/helm-charts/tree/master/elasticsearch).
+
 ## Usage
 
 ```hcl-terraform
@@ -45,7 +47,6 @@ module "elasticsearch_data" {
   storage_class_name    = kubernetes_storage_class.es_ssd.metadata[0].name
   storage_size          = "20Gi"
 }
-
 ```
 
 ### Variables
