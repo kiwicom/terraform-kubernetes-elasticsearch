@@ -5,6 +5,11 @@ Elasticsearch module for Kubernetes based on [elastic Helm charts](https://githu
 ## Usage
 
 ```hcl-terraform
+locals {
+  cluster_name = "elasticsearch-cluster"
+  es_version   = "6.2.3"
+}
+
 resource "kubernetes_storage_class" "es_ssd" {
   metadata {
     name = "es-ssd"
@@ -16,9 +21,10 @@ resource "kubernetes_storage_class" "es_ssd" {
 }
 
 module "elasticsearch_client" {
-  source                = "kiwicom/namespace/elasticsearch"
+  source                = "./elasticsearch"
+  cluster_name          = local.cluster_name
   node_group            = "client"
-  es_version            = "6.2.3"
+  es_version            = local.es_version
   namespace             = "storage"
   replicas              = 2
   master_eligible_nodes = 3
@@ -27,9 +33,10 @@ module "elasticsearch_client" {
 }
 
 module "elasticsearch_master" {
-  source                = "kiwicom/namespace/elasticsearch"
+  source                = "./elasticsearch"
   node_group            = "master"
-  es_version            = "6.2.3"
+  cluster_name          = local.cluster_name
+  es_version            = local.es_version
   namespace             = "storage"
   replicas              = 3
   master_eligible_nodes = 3
@@ -38,9 +45,10 @@ module "elasticsearch_master" {
 }
 
 module "elasticsearch_data" {
-  source                = "kiwicom/namespace/elasticsearch"
+  source                = "./elasticsearch"
   node_group            = "data"
-  es_version            = "6.2.3"
+  cluster_name          = local.cluster_name
+  es_version            = local.es_version
   namespace             = "storage"
   replicas              = 3
   master_eligible_nodes = 3
