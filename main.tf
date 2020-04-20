@@ -26,6 +26,21 @@ resource "helm_release" "elasticsearch" {
   }
 
   set {
+    name  = "roles.master"
+    value = local.roles["master"]
+  }
+
+  set {
+    name  = "roles.data"
+    value = local.roles["data"]
+  }
+
+  set {
+    name  = "roles.ingest"
+    value = local.roles["ingest"]
+  }
+
+  set {
     name  = "imageTag"
     value = var.es_version
   }
