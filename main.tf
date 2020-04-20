@@ -25,17 +25,17 @@ resource "helm_release" "elasticsearch" {
     value = local.master_service
   }
 
-  set {
+  set_string {
     name  = "roles.master"
     value = local.roles["master"]
   }
 
-  set {
+  set_string {
     name  = "roles.data"
     value = local.roles["data"]
   }
 
-  set {
+  set_string {
     name  = "roles.ingest"
     value = local.roles["ingest"]
   }
