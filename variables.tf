@@ -37,7 +37,6 @@ variable "es_version" {
 
 variable "namespace" {
   type        = string
-  default     = "storage"
   description = "Namespace in which service will be deployed"
 }
 
