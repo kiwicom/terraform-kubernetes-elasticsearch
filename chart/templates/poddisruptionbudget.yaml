@@ -1,0 +1,16 @@
+---
+{{- if .Values.maxUnavailable }}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: "{{ template "elasticsearch.uname" . }}-pdb"
+  annotations:
+    {{- range $key, $value := .Values.commonAnnotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  maxUnavailable: {{ .Values.maxUnavailable }}
+  selector:
+    matchLabels:
+      app: "{{ template "elasticsearch.uname" . }}"
+{{- end }}

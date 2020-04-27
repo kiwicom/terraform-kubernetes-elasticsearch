@@ -16,6 +16,12 @@ variable "node_group" {
   description = "This is the name that will be used for each group of nodes in the cluster (values: client, master, node)"
 }
 
+variable "common_annotations" {
+  type        = map(string)
+  default     = {}
+  description = "Common annotations for all the resources"
+}
+
 variable "roles" {
   type        = object({
     master = bool

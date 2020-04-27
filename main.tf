@@ -1,13 +1,7 @@
-data "helm_repository" "elastic" {
-  name = "elastic"
-  url  = "https://helm.elastic.co"
-}
-
-// https://github.com/elastic/helm-charts/tree/master/elasticsearch
+// original chart -> https://github.com/elastic/helm-charts/tree/master/elasticsearch
 resource "helm_release" "elasticsearch" {
   name       = "${var.cluster_name}-${var.node_group}"
-  repository = data.helm_repository.elastic.metadata[0].name
-  chart      = "elasticsearch"
+  chart     = "${path.module}/chart"
   namespace  = var.namespace
   timeout    = var.helm_install_timeout
 
@@ -23,6 +17,15 @@ resource "helm_release" "elasticsearch" {
   set {
     name  = "masterService"
     value = local.master_service
+  }
+
+  dynamic "set_string" {
+    for_each = var.common_annotations
+
+    content {
+      name  = "commonAnnotations.\"${set_string.key}\""
+      value = var.common_annotations[set_string.key]
+    }
   }
 
   set_string {
