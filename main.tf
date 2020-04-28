@@ -1,13 +1,9 @@
 // original chart -> https://github.com/elastic/helm-charts/tree/master/elasticsearch
 resource "helm_release" "elasticsearch" {
-  name       = "${var.cluster_name}-${var.node_group}"
+  name      = var.node_group != "" ? "${var.cluster_name}-${var.node_group}" : var.cluster_name
   chart     = "${path.module}/chart"
-  namespace  = var.namespace
-  timeout    = var.helm_install_timeout
-
-  values = [
-    file("${path.module}/values/${var.node_group}.yaml")
-  ]
+  namespace = var.namespace
+  timeout   = var.helm_install_timeout
 
   set {
     name  = "clusterName"
@@ -15,8 +11,18 @@ resource "helm_release" "elasticsearch" {
   }
 
   set {
-    name  = "masterService"
-    value = local.master_service
+    name  = "nodeGroup"
+    value = var.node_group
+  }
+
+  set {
+    name  = "fullnameOverride"
+    value = local.full_name_override
+  }
+
+  set {
+    name  = "httpPort"
+    value = var.http_port
   }
 
   dynamic "set_string" {
@@ -91,5 +97,10 @@ resource "helm_release" "elasticsearch" {
   set {
     name  = "volumeClaimTemplate.resources.requests.storage"
     value = var.storage_size
+  }
+
+  set {
+    name  = "persistence.enabled"
+    value = local.persistanceEnabled
   }
 }

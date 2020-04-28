@@ -1,4 +1,0 @@
-nodeGroup: "data"
-
-volumeClaimTemplate:
-  accessModes: [ "ReadWriteOnce" ]

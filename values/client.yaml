@@ -1,7 +1,0 @@
-nodeGroup: "client"
-
-volumeClaimTemplate:
-  accessModes: [ "ReadWriteOnce" ]
-
-persistence:
-  enabled: false

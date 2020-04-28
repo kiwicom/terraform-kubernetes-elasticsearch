@@ -12,8 +12,14 @@ variable "cluster_name" {
 
 variable "node_group" {
   type        = string
-  default     = "master"
+  default     = ""
   description = "This is the name that will be used for each group of nodes in the cluster (values: client, master, node)"
+}
+
+variable "http_port" {
+  type        = string
+  default     = "9200"
+  description = ""
 }
 
 variable "common_annotations" {
@@ -115,7 +121,12 @@ locals {
     "data"   = 3
   }
 
-  defult_roles = {
+  default_roles = {
+    ""       = {
+      "master" = true
+      "data"   = true
+      "ingest" = false
+    }
     "client" = {
       "master" = false
       "data"   = false
@@ -133,12 +144,13 @@ locals {
     }
   }
 
+  full_name_override   = var.node_group == "" ? var.cluster_name : ""
   replicas             = var.replicas != 0 ? var.replicas : local.default_replicas[var.node_group]
-  master_service       = "${var.cluster_name}-master"
   minimum_master_nodes = floor((var.master_eligible_nodes / 2) + 1)
   roles                = {
-    "master" = coalesce(var.roles["master"], local.defult_roles[var.node_group]["master"])
-    "data"   = coalesce(var.roles["data"], local.defult_roles[var.node_group]["data"])
-    "ingest" = coalesce(var.roles["ingest"], local.defult_roles[var.node_group]["ingest"])
+    "master" = coalesce(var.roles["master"], local.default_roles[var.node_group]["master"])
+    "data"   = coalesce(var.roles["data"], local.default_roles[var.node_group]["data"])
+    "ingest" = coalesce(var.roles["ingest"], local.default_roles[var.node_group]["ingest"])
   }
+  persistanceEnabled   = var.node_group != "client" ? true : false
 }
