@@ -1,6 +1,6 @@
 // original chart -> https://github.com/elastic/helm-charts/tree/master/elasticsearch
 resource "helm_release" "elasticsearch" {
-  name      = var.node_group != "" ? "${var.cluster_name}-${var.node_group}" : var.cluster_name
+  name      = local.full_name_override
   chart     = "${path.module}/chart"
   namespace = var.namespace
   timeout   = var.helm_install_timeout
@@ -18,6 +18,11 @@ resource "helm_release" "elasticsearch" {
   set {
     name  = "fullnameOverride"
     value = local.full_name_override
+  }
+
+  set {
+    name  = "masterService"
+    value = local.master_service
   }
 
   set {

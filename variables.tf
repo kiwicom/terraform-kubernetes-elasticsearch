@@ -10,10 +10,16 @@ variable "cluster_name" {
   description = "Elasticsearch cluster name and release name"
 }
 
+variable "node_suffix" {
+  type        = string
+  default     = ""
+  description = "Suffix that will be added to the name of this instance"
+}
+
 variable "node_group" {
   type        = string
   default     = ""
-  description = "This is the name that will be used for each group of nodes in the cluster (values: client, master, node)"
+  description = "This is the name that will be used for each group of nodes in the cluster (values: client, master, node). In case of only one node, leave empty."
 }
 
 variable "http_port" {
@@ -84,7 +90,7 @@ variable "storage_class_name" {
 
 variable "storage_size" {
   type        = string
-  default     = "30Gi"
+  default     = "1Gi"
   description = "Storage size of the storageClassName"
 }
 
@@ -144,7 +150,9 @@ locals {
     }
   }
 
-  full_name_override   = var.node_group == "" ? var.cluster_name : ""
+  node_suffix          = var.node_suffix != "" ? "-${var.node_suffix}" : ""
+  full_name_override   = var.node_group != "" ? "${var.cluster_name}-${var.node_group}${local.node_suffix}" : "${var.cluster_name}${local.node_suffix}"
+  master_service       = var.node_group != "" ? "${var.cluster_name}-master" : ""
   replicas             = var.replicas != 0 ? var.replicas : local.default_replicas[var.node_group]
   minimum_master_nodes = floor((var.master_eligible_nodes / 2) + 1)
   roles                = {
