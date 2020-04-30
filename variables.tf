@@ -19,7 +19,7 @@ variable "node_group" {
 variable "http_port" {
   type        = string
   default     = "9200"
-  description = ""
+  description = "The http port that Kubernetes will use for the healthchecks and the service. If you change this you will also need to set http.port in extraEnvs"
 }
 
 variable "common_annotations" {
