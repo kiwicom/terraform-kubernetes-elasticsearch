@@ -26,6 +26,11 @@ resource "helm_release" "elasticsearch" {
   }
 
   set {
+    name  = "protocol"
+    value = var.protocol
+  }
+
+  set {
     name  = "httpPort"
     value = var.http_port
   }

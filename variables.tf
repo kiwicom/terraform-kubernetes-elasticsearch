@@ -22,6 +22,12 @@ variable "node_group" {
   description = "This is the name that will be used for each group of nodes in the cluster (values: client, master, node). In case of only one node, leave empty."
 }
 
+variable "protocol" {
+  type        = string
+  default     = "http"
+  description = "The protocol that will be used for the readinessProbe. Change this to `https` if you have `xpack.security.http.ssl.enabled` set"
+}
+
 variable "http_port" {
   type        = string
   default     = "9200"
