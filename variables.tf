@@ -114,7 +114,7 @@ variable "resources" {
 
   default = {
     requests = {
-      cpu    = "1000m"
+      cpu    = "400m"
       memory = "2Gi"
     }
     limits   = {
