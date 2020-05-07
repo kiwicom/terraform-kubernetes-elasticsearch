@@ -76,6 +76,12 @@ variable "master_eligible_nodes" {
   description = "Number of master eligible nodes used to calculate minimumMasterNodes"
 }
 
+variable "es_config" {
+  type        = map(string)
+  default     = {}
+  description = "Allows you to add any config files in `/usr/share/elasticsearch/config/` such as `elasticsearch.yml` and `log4j2.properties`. See [values.yaml](https://github.com/elastic/helm-charts/tree/master/elasticsearch/values.yaml) for an example of the formatting"
+}
+
 variable "termination_grace_period" {
   type        = number
   default     = 120

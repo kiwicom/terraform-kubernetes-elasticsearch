@@ -25,6 +25,16 @@ resource "helm_release" "elasticsearch" {
     value = local.master_service
   }
 
+  dynamic "set" {
+    for_each = var.es_config
+
+    content {
+      type  = "string"
+      name  = "esConfig.${set.key}"
+      value = var.es_config[set.key]
+    }
+  }
+
   set {
     name  = "protocol"
     value = var.protocol
