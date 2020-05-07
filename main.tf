@@ -35,26 +35,30 @@ resource "helm_release" "elasticsearch" {
     value = var.http_port
   }
 
-  dynamic "set_string" {
+  dynamic "set" {
     for_each = var.common_annotations
 
     content {
-      name  = "commonAnnotations.\"${set_string.key}\""
-      value = var.common_annotations[set_string.key]
+      type  = "string"
+      name  = "commonAnnotations.\"${set.key}\""
+      value = var.common_annotations[set.key]
     }
   }
 
-  set_string {
+  set {
+    type  = "string"
     name  = "roles.master"
     value = local.roles["master"]
   }
 
-  set_string {
+  set {
+    type  = "string"
     name  = "roles.data"
     value = local.roles["data"]
   }
 
-  set_string {
+  set {
+    type  = "string"
     name  = "roles.ingest"
     value = local.roles["ingest"]
   }
