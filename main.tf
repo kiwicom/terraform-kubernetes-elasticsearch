@@ -55,6 +55,16 @@ resource "helm_release" "elasticsearch" {
     }
   }
 
+  dynamic "set" {
+    for_each = local.pod_annotations
+
+    content {
+      type  = "string"
+      name  = "podAnnotations.\"${set.key}\""
+      value = local.pod_annotations[set.key]
+    }
+  }
+
   set {
     type  = "string"
     name  = "roles.master"
@@ -125,6 +135,6 @@ resource "helm_release" "elasticsearch" {
 
   set {
     name  = "persistence.enabled"
-    value = local.persistanceEnabled
+    value = local.persistance_enabled
   }
 }

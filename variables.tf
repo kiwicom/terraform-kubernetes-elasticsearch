@@ -1,6 +1,11 @@
+variable "gcp_project_id" {
+  type        = string
+  description = "GCP project ID"
+}
+
 variable "helm_install_timeout" {
   type        = number
-  default     = 300
+  default     = 600
   description = "Time in seconds to wait for any individual kubernetes operation (like Jobs for hooks)"
 }
 
@@ -38,6 +43,12 @@ variable "common_annotations" {
   type        = map(string)
   default     = {}
   description = "Common annotations for all the resources"
+}
+
+variable "pod_annotations" {
+  type        = map(string)
+  default     = {}
+  description = "Configurable annotations applied to all Elasticsearch pods"
 }
 
 variable "roles" {
@@ -172,5 +183,11 @@ locals {
     "data"   = coalesce(var.roles["data"], local.default_roles[var.node_group]["data"])
     "ingest" = coalesce(var.roles["ingest"], local.default_roles[var.node_group]["ingest"])
   }
-  persistanceEnabled   = var.node_group != "client" ? true : false
+  persistance_enabled  = var.node_group != "client" ? true : false
+  pod_annotations      = merge({
+    "ad\\.datadoghq\\.com/elasticsearch\\.check_names": "[\"elastic\"]",
+    "ad\\.datadoghq\\.com/elasticsearch\\.init_configs": "[{}]",
+    "ad\\.datadoghq\\.com/elasticsearch\\.instances": "[{\"url\": \"http://%%host%%:9200\"}]",
+    "ad\\.datadoghq\\.com/elasticsearch\\.tags": " {\"gcp_project_id\": \"${var.gcp_project_id}\"\\, \"es_cluster_name\": \"${var.cluster_name}\"\\, \"just_testing\": \"yes\"} ",
+  }, var.pod_annotations)
 }
