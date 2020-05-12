@@ -24,6 +24,7 @@ resource "kubernetes_storage_class" "es_ssd" {
 module "elasticsearch_client" {
   source                = "kiwicom/elasticsearch/kubernetes"
   version               = "~> 1.0.0"
+  gcp_project_id        = "gcp-project-id"
   # version >= 1.0.0 and < 1.1.0, e.g. 1.0.X
   cluster_name          = local.cluster_name
   node_group            = "client"
