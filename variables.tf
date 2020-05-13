@@ -188,6 +188,6 @@ locals {
     "ad\\.datadoghq\\.com/elasticsearch\\.check_names": "[\"elastic\"]",
     "ad\\.datadoghq\\.com/elasticsearch\\.init_configs": "[{}]",
     "ad\\.datadoghq\\.com/elasticsearch\\.instances": "[{\"url\": \"http://%%host%%:9200\"}]",
-    "ad\\.datadoghq\\.com/elasticsearch\\.tags": " {\"gcp_project_id\": \"${var.gcp_project_id}\"\\, \"es_cluster_name\": \"${var.cluster_name}\"\\, \"just_testing\": \"yes\"} ",
+    "ad\\.datadoghq\\.com/elasticsearch\\.tags": " {\"gcp_project_id\": \"${var.gcp_project_id}\"\\, \"es_cluster_name\": \"${var.cluster_name}\"} ",
   }, var.pod_annotations)
 }
