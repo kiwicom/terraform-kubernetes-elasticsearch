@@ -187,7 +187,7 @@ locals {
   pod_annotations      = merge({
     "ad\\.datadoghq\\.com/elasticsearch\\.check_names": "[\"elastic\"]",
     "ad\\.datadoghq\\.com/elasticsearch\\.init_configs": "[{}]",
-    "ad\\.datadoghq\\.com/elasticsearch\\.instances": "[{\"url\": \"http://%%host%%:9200\", \"cluster_stats\": \"true\"}, \"index_stats\": \"true\"}, \"pending_task_stats\": \"true\"}]",
+    "ad\\.datadoghq\\.com/elasticsearch\\.instances": "[{\"url\": \"http://%%host%%:9200\", \"cluster_stats\": \"true\", \"index_stats\": \"true\", \"pending_task_stats\": \"true\"}]",
     "ad\\.datadoghq\\.com/elasticsearch\\.tags": " {\"gcp_project_id\": \"${var.gcp_project_id}\"\\, \"es_cluster_name\": \"${var.cluster_name}\"} ",
   }, var.pod_annotations)
 }
