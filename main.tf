@@ -137,4 +137,32 @@ resource "helm_release" "elasticsearch" {
     name  = "persistence.enabled"
     value = local.persistance_enabled
   }
+
+  set {
+    name  = "ingress.enabled"
+    value = var.ingress.enabled
+  }
+
+  set {
+    name  = "ingress.path"
+    value = var.ingress.path
+  }
+
+  dynamic "set" {
+    for_each = var.ingress.hosts
+
+    content {
+      name  = "ingress.hosts[${set.key}]"
+      value = set.value
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.ingress.annotations
+
+    content {
+      name  = "ingress.annotations.\"${set.key}\""
+      value = var.ingress.annotations[set.key]
+    }
+  }
 }

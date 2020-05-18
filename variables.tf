@@ -143,6 +143,22 @@ variable "resources" {
   description = "Allows you to set the resources for the statefulset"
 }
 
+variable "ingress" {
+  type        = object({
+    enabled     = bool
+    path        = string
+    hosts       = list(string)
+    annotations = map(string)
+  })
+  default     = {
+    enabled     = false
+    path        = "/"
+    hosts       = []
+    annotations = {}
+  }
+  description = "Configurable ingress to expose the Elasticsearch service"
+}
+
 locals {
   default_replicas = {
     "client" = 2
