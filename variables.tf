@@ -132,13 +132,14 @@ variable "resources" {
   default = {
     requests = {
       cpu    = "400m"
-      memory = "2Gi"
+      memory = "4Gi"
     }
     limits   = {
       cpu    = "1000m"
-      memory = "2Gi"
+      memory = "4Gi"
     }
   }
+
 
   description = "Allows you to set the resources for the statefulset"
 }
