@@ -224,11 +224,6 @@ locals {
     }
   }
 
-  default_elasticsearch_yml = <<EOT
-xpack.license.self_generated.type: basic
-xpack.security.enabled: false
-EOT
-
   node_suffix          = var.node_suffix != "" ? "-${var.node_suffix}" : ""
   full_name_override   = var.node_group != "" ? "${var.cluster_name}-${var.node_group}${local.node_suffix}" : "${var.cluster_name}${local.node_suffix}"
   master_service       = var.node_group != "" ? "${var.cluster_name}-master" : ""
