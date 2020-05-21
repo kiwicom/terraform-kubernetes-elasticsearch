@@ -18,3 +18,17 @@ data:
 {{ $config | indent 4 -}}
 {{- end -}}
 {{- end -}}
+{{- range .Values.extraConfigs }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .name }}
+  annotations:
+    {{- range $key, $value := $.Values.commonAnnotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+data:
+  {{ .path }}: |
+{{ .config | indent 4 -}}
+{{- end -}}

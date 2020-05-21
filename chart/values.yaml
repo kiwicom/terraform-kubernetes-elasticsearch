@@ -30,6 +30,13 @@ esConfig: {}
 #  log4j2.properties: |
 #    key = value
 
+extraConfigs: []
+#  - name: elasticsearch-envoy
+#    path: envoy.yaml
+#    config: >
+#      admin:
+#        access_log_path: /dev/null
+
 # Extra environment variables to append to this nodeGroup
 # This will be appended to the current 'env:' key. You can use any of the kubernetes env
 # syntax here
@@ -225,7 +232,9 @@ ingress:
     # kubernetes.io/tls-acme: "true"
   path: /
   hosts:
-    - chart-example.local
+    - host: chart-example.local
+      path: /
+      port: 9200
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:

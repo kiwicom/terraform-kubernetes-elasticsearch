@@ -89,7 +89,12 @@ variable "master_eligible_nodes" {
 
 variable "es_config" {
   type        = map(string)
-  default     = {}
+  default     = {
+    "elasticsearch\\.yml": <<EOT
+xpack.license.self_generated.type: basic
+xpack.security.enabled: false
+EOT
+  }
   description = "Allows you to add any config files in `/usr/share/elasticsearch/config/` such as `elasticsearch.yml` and `log4j2.properties`. See [values.yaml](https://github.com/elastic/helm-charts/tree/master/elasticsearch/values.yaml) for an example of the formatting"
 }
 
@@ -140,24 +145,53 @@ variable "resources" {
     }
   }
 
-
   description = "Allows you to set the resources for the statefulset"
 }
 
 variable "ingress" {
   type        = object({
     enabled     = bool
-    path        = string
-    hosts       = list(string)
+    hosts       = list(object({
+      host = string
+      path = string
+      port = string
+    }))
     annotations = map(string)
   })
   default     = {
     enabled     = false
-    path        = "/"
-    hosts       = []
+    hosts       = [
+      {
+        host = ""
+        path = "/"
+        port = 5601
+      }
+    ]
     annotations = {}
   }
   description = "Configurable ingress to expose the Elasticsearch service"
+}
+
+variable "extra_configs" {
+  type        = list(object({
+    name   = string
+    path   = string
+    config = string
+  }))
+  default     = []
+  description = "Additional config maps"
+}
+
+variable "extra_volumes" {
+  type        = string
+  default     = ""
+  description = "Templatable string of additional volumes to be passsed to the tpl function"
+}
+
+variable "extra_containers" {
+  type        = string
+  default     = ""
+  description = "Templatable string of additional containers to be passed to the tpl function"
 }
 
 locals {
@@ -189,6 +223,11 @@ locals {
       "ingest" = true
     }
   }
+
+  default_elasticsearch_yml = <<EOT
+xpack.license.self_generated.type: basic
+xpack.security.enabled: false
+EOT
 
   node_suffix          = var.node_suffix != "" ? "-${var.node_suffix}" : ""
   full_name_override   = var.node_group != "" ? "${var.cluster_name}-${var.node_group}${local.node_suffix}" : "${var.cluster_name}${local.node_suffix}"

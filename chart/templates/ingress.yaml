@@ -1,7 +1,5 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "elasticsearch.uname" . -}}
-{{- $servicePort := .Values.httpPort -}}
-{{- $ingressPath := .Values.ingress.path -}}
 apiVersion: {{ template "elasticsearch.ingress.apiVersion" . }}
 kind: Ingress
 metadata:
@@ -30,12 +28,12 @@ spec:
 {{- end }}
   rules:
   {{- range .Values.ingress.hosts }}
-    - host: {{ . }}
+    - host: {{ .host }}
       http:
         paths:
-          - path: {{ $ingressPath }}
+          - path: {{ .path }}
             backend:
               serviceName: {{ $fullName }}
-              servicePort: {{ $servicePort }}
+              servicePort: {{ .port }}
   {{- end }}
 {{- end }}

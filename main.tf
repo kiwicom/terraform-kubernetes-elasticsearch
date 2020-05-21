@@ -143,17 +143,30 @@ resource "helm_release" "elasticsearch" {
     value = var.ingress.enabled
   }
 
-  set {
-    name  = "ingress.path"
-    value = var.ingress.path
+  dynamic "set" {
+    for_each = var.ingress.hosts
+
+    content {
+      name  = "ingress.hosts[${set.key}].host"
+      value = var.ingress.hosts[set.key].host
+    }
   }
 
   dynamic "set" {
     for_each = var.ingress.hosts
 
     content {
-      name  = "ingress.hosts[${set.key}]"
-      value = set.value
+      name  = "ingress.hosts[${set.key}].path"
+      value = var.ingress.hosts[set.key].path
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.ingress.hosts
+
+    content {
+      name  = "ingress.hosts[${set.key}].port"
+      value = var.ingress.hosts[set.key].port
     }
   }
 
@@ -164,5 +177,42 @@ resource "helm_release" "elasticsearch" {
       name  = "ingress.annotations.\"${set.key}\""
       value = var.ingress.annotations[set.key]
     }
+  }
+
+  dynamic "set" {
+    for_each = var.extra_configs
+
+    content {
+      name  = "extraConfigs[${set.key}].name"
+      value = var.extra_configs[set.key].name
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.extra_configs
+
+    content {
+      name  = "extraConfigs[${set.key}].path"
+      value = var.extra_configs[set.key].path
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.extra_configs
+
+    content {
+      name  = "extraConfigs[${set.key}].config"
+      value = var.extra_configs[set.key].config
+    }
+  }
+
+  set {
+    name  = "extraVolumes"
+    value = var.extra_volumes
+  }
+
+  set {
+    name  = "extraContainers"
+    value = var.extra_containers
   }
 }
