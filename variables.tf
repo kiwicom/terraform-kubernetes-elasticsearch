@@ -187,6 +187,7 @@ variable "extra_service_ports" {
       target_port = string
     }))
   })
+  default     = {}
   description = "Configurable service to expose the Elasticsearch service"
 }
 
