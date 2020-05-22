@@ -256,4 +256,13 @@ resource "helm_release" "elasticsearch" {
     name  = "extraContainers"
     value = var.extra_containers
   }
+
+  dynamic "set" {
+    for_each = var.keystore
+
+    content {
+      name  = "keystore[${set.key}].secretName"
+      value = var.keystore[set.key]
+    }
+  }
 }

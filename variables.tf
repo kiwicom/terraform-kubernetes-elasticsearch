@@ -187,7 +187,9 @@ variable "extra_service_ports" {
       target_port = string
     }))
   })
-  default     = {}
+  default     = {
+    ports = []
+  }
   description = "Configurable service to expose the Elasticsearch service"
 }
 
@@ -211,6 +213,12 @@ variable "extra_containers" {
   type        = string
   default     = ""
   description = "Templatable string of additional containers to be passed to the tpl function"
+}
+
+variable "keystore" {
+  type        = list(string)
+  default     = []
+  description = "Allows you map Kubernetes secrets into the keystore."
 }
 
 locals {
