@@ -65,6 +65,12 @@ variable "roles" {
   description = "A hash map with the specific roles for the node group"
 }
 
+variable "image" {
+  type        = string
+  description = "Elasticsearch image"
+  default     = "docker.elastic.co/elasticsearch/elasticsearch"
+}
+
 variable "es_version" {
   type        = string
   description = "Elasticsearch version"

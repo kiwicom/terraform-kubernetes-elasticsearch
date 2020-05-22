@@ -84,6 +84,11 @@ resource "helm_release" "elasticsearch" {
   }
 
   set {
+    name  = "image"
+    value = var.image
+  }
+
+  set {
     name  = "imageTag"
     value = var.es_version
   }
