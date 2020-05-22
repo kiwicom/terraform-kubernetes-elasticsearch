@@ -176,7 +176,7 @@ service:
   loadBalancerIP: ""
   loadBalancerSourceRanges: []
 
-extraServicePorts: []
+extraServicePorts: {}
 #  ports:
 #    - name: http
 #      port: 5601
