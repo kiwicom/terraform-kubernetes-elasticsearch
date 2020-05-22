@@ -178,6 +178,18 @@ variable "ingress" {
   description = "Configurable ingress to expose the Elasticsearch service"
 }
 
+variable "extra_service_ports" {
+  type        = object({
+    ports = list(object({
+      name        = string
+      port        = string
+      node_port   = string
+      target_port = string
+    }))
+  })
+  description = "Configurable service to expose the Elasticsearch service"
+}
+
 variable "extra_configs" {
   type        = list(object({
     name   = string

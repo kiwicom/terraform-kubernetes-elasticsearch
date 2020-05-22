@@ -185,6 +185,42 @@ resource "helm_release" "elasticsearch" {
   }
 
   dynamic "set" {
+    for_each = var.extra_service_ports.ports
+
+    content {
+      name  = "extraServicePorts.ports[${set.key}].name"
+      value = var.extra_service_ports.ports[set.key].name
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.extra_service_ports.ports
+
+    content {
+      name  = "extraServicePorts.ports[${set.key}].port"
+      value = var.extra_service_ports.ports[set.key].port
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.extra_service_ports.ports
+
+    content {
+      name  = "extraServicePorts.ports[${set.key}].nodePort"
+      value = var.extra_service_ports.ports[set.key].node_port
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.extra_service_ports.ports
+
+    content {
+      name  = "extraServicePorts.ports[${set.key}].targetPort"
+      value = var.extra_service_ports.ports[set.key].target_port
+    }
+  }
+
+  dynamic "set" {
     for_each = var.extra_configs
 
     content {

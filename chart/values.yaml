@@ -176,6 +176,13 @@ service:
   loadBalancerIP: ""
   loadBalancerSourceRanges: []
 
+extraServicePorts: []
+#  ports:
+#    - name: http
+#      port: 5601
+#      nodePort: ""
+#      targetPort: 5601
+
 updateStrategy: RollingUpdate
 
 # This is the max unavailable setting for the pod disruption budget
