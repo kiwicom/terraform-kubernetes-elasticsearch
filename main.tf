@@ -247,6 +247,57 @@ resource "helm_release" "elasticsearch" {
     }
   }
 
+  dynamic "set" {
+    for_each = var.tolerations
+
+    content {
+      name  = "tolerations[${set.key}].key"
+      value = var.tolerations[set.key].key
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.tolerations
+
+    content {
+      name  = "tolerations[${set.key}].operator"
+      value = var.tolerations[set.key].operator
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.tolerations
+
+    content {
+      name  = "tolerations[${set.key}].value"
+      value = var.tolerations[set.key].value
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.tolerations
+
+    content {
+      name  = "tolerations[${set.key}].effect"
+      value = var.tolerations[set.key].effect
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.node_selector
+
+    content {
+      type  = "string"
+      name  = "nodeSelector.${set.key}"
+      value = var.node_selector[set.key]
+    }
+  }
+
+  set {
+    name  = "esJavaOpts"
+    value = var.es_java_opts
+  }
+
   set {
     name  = "extraVolumes"
     value = var.extra_volumes

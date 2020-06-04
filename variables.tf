@@ -221,6 +221,21 @@ variable "keystore" {
   description = "Allows you map Kubernetes secrets into the keystore."
 }
 
+variable "tolerations"{
+  type      = list(object({
+      key      = string
+      operator = string
+      value    = string
+      effect   = string
+  }))
+  default     = []
+}
+
+variable "node_selector" {
+  type        = map(string)
+  default     = {}
+}
+
 locals {
   default_replicas = {
     "client" = 2
