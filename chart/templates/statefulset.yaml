@@ -251,7 +251,7 @@ spec:
 
                 else
                   echo 'Waiting for elasticsearch cluster to become ready (request params: "{{ .Values.clusterHealthCheckParams }}" )'
-                  if curl -XGET -s -k --fail ${BASIC_AUTH} {{ .Values.protocol }}://127.0.0.1:{{ .Values.httpPort }}/_cluster/health?{{ .Values.clusterHealthCheckParams }} ; then
+                  if curl -XGET -s -k --fail ${BASIC_AUTH} '{{ .Values.protocol }}://127.0.0.1:{{ .Values.httpPort }}/_cluster/health?{{ .Values.clusterHealthCheckParams }}' ; then
                     touch ${START_FILE}
                     exit 0
                   else
