@@ -65,6 +65,12 @@ variable "roles" {
   description = "A hash map with the specific roles for the node group"
 }
 
+variable "image_pull_secrets" {
+  type        = list(string)
+  description = "Image Pull Secrets"
+  default     = []
+}
+
 variable "image" {
   type        = string
   description = "Elasticsearch image"

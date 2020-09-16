@@ -93,6 +93,15 @@ resource "helm_release" "elasticsearch" {
     value = var.es_version
   }
 
+  dynamic "set" {
+    for_each = var.image_pull_secrets
+
+    content {
+      name  = "imagePullSecrets[${set.key}].name"
+      value = var.image_pull_secrets[set.key]
+    }
+  }
+
   set {
     name  = "replicas"
     value = local.replicas
