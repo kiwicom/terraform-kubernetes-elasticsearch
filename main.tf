@@ -1,3 +1,11 @@
+locals {
+  // ElasticSearch Monitoring related locals
+  es_types = [
+    "master",
+    "data"
+  ]
+}
+
 // original chart -> https://github.com/elastic/helm-charts/tree/master/elasticsearch
 resource "helm_release" "elasticsearch" {
   name      = local.full_name_override
@@ -325,4 +333,107 @@ resource "helm_release" "elasticsearch" {
       value = var.keystore[set.key]
     }
   }
+}
+
+// DataDog monitors definitions
+
+resource "datadog_monitor" "es_ready_status_check_slack" {
+  for_each           = var.es_monitoring ? {for v in local.es_types : v => v} : {}
+  name               = "ElasticSearch does not meet desired number of running StatefulSets."
+  type               = "metric alert"
+  message            = <<EOF
+{{#is_alert}}{{/is_alert}}{{#is_alert_recovery}}{{/is_alert_recovery}} 
+Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel}
+[GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=:${var.gcp_project_id})
+Cluster: ${var.cluster_name}-${each.value}
+EOF
+
+  query = "avg(last_5m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}-${each.value}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}-${each.value}} > 1"
+
+  thresholds = {
+    critical          = 1
+    critical_recovery = 0
+  }
+
+  notify_no_data    = false
+
+  tags = ["team:platform"]
+}
+
+resource "datadog_monitor" "es_ready_status_check_pd" {
+  for_each           = var.es_monitoring ? {for v in local.es_types : v => v} : {}
+  name               = "ElasticSearch does not meet desired number of running StatefulSets."
+  type               = "metric alert"
+  message            = <<EOF
+{{#is_alert}}{{/is_alert}}{{#is_alert_recovery}}{{/is_alert_recovery}} 
+Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel} ${var.monitoring_pager_duty_platform_infra} ${var.monitoring_pager_duty_team_specific}
+Cluster: ${var.cluster_name}-${each.value}
+[GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=:${var.gcp_project_id})
+EOF
+
+  query = "avg(last_15m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}-${each.value}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}-${each.value}} > 1"
+
+  thresholds = {
+    critical          = 1
+    critical_recovery = 0
+  }
+
+  notify_no_data    = false
+
+  tags = ["team:platform"]
+}
+
+resource "datadog_monitor" "es_disk_usage_check" {
+  count              = var.es_monitoring ? 1 : 0
+  name               = "ElasticSearch host high disk usage."
+  type               = "metric alert"
+  message            = <<EOF
+{{#is_warning}}Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel}{{/is_warning}}
+{{#is_warning_recovery}}Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel}{{/is_warning_recovery}}
+{{#is_alert}}Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel} ${var.monitoring_pager_duty_platform_infra} ${var.monitoring_pager_duty_team_specific}"{{/is_alert}}
+{{#is_alert_recovery}}Notify: ${var.monitoring_pager_duty_platform_infra} ${var.monitoring_pager_duty_team_specific}"{{/is_alert_recovery}}
+[GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=:${var.gcp_project_id})
+Host {{host.name}} in cluster ${var.cluster_name}
+EOF
+
+  query = "(1-(sum:elasticsearch.fs.total.available_in_bytes{es_cluster_name:${var.cluster_name},*} by {host}/sum:elasticsearch.fs.total.total_in_bytes{es_cluster_name:${var.cluster_name},*} by {host}))*100"
+
+  thresholds = {
+    warning           = 75
+    warning_recovery  = 70
+    critical          = 85
+    critical_recovery = 75
+  }
+
+  notify_no_data    = false
+
+  tags = ["team:platform"]
+}
+
+resource "datadog_monitor" "es_heap_usage_check" {
+  count              = var.es_monitoring ? 1 : 0
+  name               = "ElasticSearch jvm.heap usage."
+  type               = "metric alert"
+  message            = <<EOF
+{{#is_warning}}{{/is_warning}}
+{{#is_warning_recovery}}{{/is_warning_recovery}}
+{{#is_alert}}{{/is_alert}}
+{{#is_alert_recovery}}{{/is_alert_recovery}}
+[GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=:${var.gcp_project_id})
+Host {{host.name}} in cluster ${var.cluster_name}
+Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel} ${var.monitoring_pager_duty_working_hours} ${var.monitoring_pager_duty_team_specific}
+EOF
+
+  query = "avg(last_5m):avg:jvm.mem.heap_in_use{cluster_name:es-auto-emails} by {host} > 60"
+
+  thresholds = {
+    warning           = 75
+    warning_recovery  = 70
+    critical          = 85
+    critical_recovery = 75
+  }
+
+  notify_no_data    = false
+
+  tags = ["team:platform"]
 }
