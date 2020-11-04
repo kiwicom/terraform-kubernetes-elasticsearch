@@ -290,3 +290,39 @@ locals {
     "ad\\.datadoghq\\.com/elasticsearch\\.tags": " {\"gcp_project_id\": \"${var.gcp_project_id}\"\\, \"es_cluster_name\": \"${var.cluster_name}\"} ",
   }, var.pod_annotations)
 }
+
+/// Monitoring variables
+variable "es_monitoring" {
+  type    = bool
+  default = false
+}
+
+variable "monitoring_slack_alerts_channel" {
+  type = string
+  default="@slack-alerts"
+  description="Slack #alerts channel for reporting alerts wiaboutth ElasticSearch."
+}
+
+variable "monitoring_slack_additional_channel" {
+  type = string
+  default = ""
+  description = "Optional additional slack channel to report alerts to. You can get integration slack channel name from DataDog UI/Integrations/Integrations/Slack/Configure."
+}
+
+variable "monitoring_pager_duty_platform_infra" {
+  type = string
+  default = "@pagerduty-DDDevops"
+  description = "Platform Infra 1st line PagerDuty."
+}
+
+variable "monitoring_pager_duty_working_hours" {
+  type = string
+  default = "@pagerduty-DDDevopsLow"
+  description = "Platform PagerDuty escalation policy with core time response only."
+}
+
+variable "monitoring_pager_duty_team_specific" {
+  type = string
+  default = ""
+  description = "Team specific PagerDuty escalation plicy."
+}
