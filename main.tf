@@ -383,7 +383,7 @@ EOF
 }
 
 resource "datadog_monitor" "es_disk_usage_check" {
-  count              = var.es_monitoring ? 1 : 0
+  count              = (var.es_monitoring && ((local.prefixed_node_group == "-master") || (local.prefixed_node_group == ""))) ? 1 : 0
   name               = "ElasticSearch host high disk usage."
   type               = "metric alert"
   message            = <<EOF
@@ -410,7 +410,7 @@ EOF
 }
 
 resource "datadog_monitor" "es_heap_usage_check" {
-  count              = var.es_monitoring ? 1 : 0
+  count              = (var.es_monitoring && ((local.prefixed_node_group == "-master") || (local.prefixed_node_group == ""))) ? 1 : 0
   name               = "ElasticSearch jvm.heap usage."
   type               = "metric alert"
   message            = <<EOF
@@ -424,7 +424,7 @@ Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_5m):avg:jvm.mem.heap_in_use{cluster_name:es-auto-emails} by {host} > 85"
+  query = "avg(last_5m):avg:jvm.mem.heap_in_use{cluster_name:${var.cluster_name}} by {host} > 85"
 
   thresholds = {
     warning           = 75
