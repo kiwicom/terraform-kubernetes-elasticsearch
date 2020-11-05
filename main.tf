@@ -1,9 +1,6 @@
 locals {
-  // ElasticSearch Monitoring related locals
-  es_types = [
-    "master",
-    "data"
-  ]
+  // Elasticsearch monitoring related local var
+  prefixed_node_group = (var.node_group != "") ? "-${var.node_group}" : var.node_group
 }
 
 // original chart -> https://github.com/elastic/helm-charts/tree/master/elasticsearch
@@ -338,17 +335,18 @@ resource "helm_release" "elasticsearch" {
 // DataDog monitors definitions
 
 resource "datadog_monitor" "es_ready_status_check_slack" {
-  for_each           = var.es_monitoring ? {for v in local.es_types : v => v} : {}
+  count              = var.es_monitoring ? 1 : 0
   name               = "ElasticSearch does not meet desired number of running StatefulSets."
   type               = "metric alert"
   message            = <<EOF
 {{#is_alert}}{{/is_alert}}{{#is_alert_recovery}}{{/is_alert_recovery}} 
 Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel}
 [GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=:${var.gcp_project_id})
-Cluster: ${var.cluster_name}-${each.value}
+Cluster: ${var.cluster_name}${local.prefixed_node_group}
+ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_5m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}-${each.value}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}-${each.value}} > 1"
+  query = "avg(last_5m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}${local.prefixed_node_group}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}${local.prefixed_node_group}} > 1"
 
   thresholds = {
     critical          = 1
@@ -361,17 +359,18 @@ EOF
 }
 
 resource "datadog_monitor" "es_ready_status_check_pd" {
-  for_each           = var.es_monitoring ? {for v in local.es_types : v => v} : {}
+  count              = var.es_monitoring ? 1 : 0
   name               = "ElasticSearch does not meet desired number of running StatefulSets."
   type               = "metric alert"
   message            = <<EOF
 {{#is_alert}}{{/is_alert}}{{#is_alert_recovery}}{{/is_alert_recovery}} 
 Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel} ${var.monitoring_pager_duty_platform_infra} ${var.monitoring_pager_duty_team_specific}
-Cluster: ${var.cluster_name}-${each.value}
+Cluster: ${var.cluster_name}${local.prefixed_node_group}
 [GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=:${var.gcp_project_id})
+ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_15m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}-${each.value}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}-${each.value}} > 1"
+  query = "avg(last_15m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}${local.prefixed_node_group}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}${local.prefixed_node_group}} > 1"
 
   thresholds = {
     critical          = 1
@@ -394,10 +393,10 @@ resource "datadog_monitor" "es_disk_usage_check" {
 {{#is_alert_recovery}}Notify: ${var.monitoring_pager_duty_platform_infra} ${var.monitoring_pager_duty_team_specific}"{{/is_alert_recovery}}
 [GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=:${var.gcp_project_id})
 Host {{host.name}} in cluster ${var.cluster_name}
+ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "(1-(sum:elasticsearch.fs.total.available_in_bytes{es_cluster_name:${var.cluster_name},*} by {host}/sum:elasticsearch.fs.total.total_in_bytes{es_cluster_name:${var.cluster_name},*} by {host}))*100"
-
+  query = "avg(last_15m):( 1 - ( sum:elasticsearch.fs.total.available_in_bytes{cluster_name:${var.cluster_name}} by {host} / sum:elasticsearch.fs.total.total_in_bytes{cluster_name:${var.cluster_name}} by {host} ) ) * 100 > 85"
   thresholds = {
     warning           = 75
     warning_recovery  = 70
@@ -421,10 +420,11 @@ resource "datadog_monitor" "es_heap_usage_check" {
 {{#is_alert_recovery}}{{/is_alert_recovery}}
 [GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=:${var.gcp_project_id})
 Host {{host.name}} in cluster ${var.cluster_name}
-Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel} ${var.monitoring_pager_duty_working_hours} ${var.monitoring_pager_duty_team_specific}
+Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel} ${var.monitoring_pager_duty_working_hours} ${var.monitoring_pager_duty_team_specific}ES 
+ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_5m):avg:jvm.mem.heap_in_use{cluster_name:es-auto-emails} by {host} > 60"
+  query = "avg(last_5m):avg:jvm.mem.heap_in_use{cluster_name:es-auto-emails} by {host} > 85"
 
   thresholds = {
     warning           = 75
