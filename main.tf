@@ -420,7 +420,7 @@ resource "datadog_monitor" "es_heap_usage_check" {
 {{#is_alert_recovery}}{{/is_alert_recovery}}
 [GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=${var.gcp_project_id})
 Host {{host.name}} in cluster ${var.cluster_name}
-Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel} ${var.monitoring_pager_duty_working_hours} ${var.monitoring_pager_duty_team_specific}ES 
+Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel} ${var.monitoring_pager_duty_working_hours} ${var.monitoring_pager_duty_team_specific}
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
