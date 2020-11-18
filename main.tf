@@ -424,7 +424,7 @@ Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_5m):avg:jvm.mem.heap_in_use{cluster_name:${var.cluster_name}} by {host} > 85"
+  query = "avg(last_15m):avg:jvm.mem.heap_in_use{cluster_name:${var.cluster_name}} by {host} > 85"
 
   thresholds = {
     warning           = 75
