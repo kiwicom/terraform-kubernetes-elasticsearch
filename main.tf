@@ -437,3 +437,33 @@ EOF
 
   tags = ["team:platform"]
 }
+
+resource "datadog_monitor" "es_cpu_usage_check" {
+  count              = (var.es_monitoring && ((local.prefixed_node_group == "-master") || (local.prefixed_node_group == ""))) ? 1 : 0
+  name               = "ElasticSearch CPU usage."
+  type               = "metric alert"
+  message            = <<EOF
+{{#is_warning}}{{/is_warning}}
+{{#is_warning_recovery}}{{/is_warning_recovery}}
+{{#is_alert}}{{/is_alert}}
+{{#is_alert_recovery}}{{/is_alert_recovery}}
+[GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=${var.gcp_project_id})
+Host {{host.name}} in cluster ${var.cluster_name}
+Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel} ${var.monitoring_pager_duty_working_hours} ${var.monitoring_pager_duty_team_specific}
+ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
+EOF
+
+  query = "( avg(last_1h):kubernetes.cpu.user.total{kube_stateful_set:${var.cluster_name}${local.prefixed_node_group}} / avg(last_1h):kubernetes.cpu.limits{kube_stateful_set:${var.cluster_name}${local.prefixed_node_group}} ) * 100 by {host} > 90"
+
+  thresholds = {
+    warning           = 75
+    warning_recovery  = 70
+    critical          = 90
+    critical_recovery = 75
+  }
+
+  notify_no_data    = false
+
+  tags = ["team:platform"]
+}
+
