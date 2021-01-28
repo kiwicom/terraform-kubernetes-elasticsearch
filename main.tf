@@ -453,7 +453,7 @@ Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_1h):( avg:kubernetes.cpu.user.total{kube_stateful_set:es-autobooking-data} / avg:kubernetes.cpu.limits{kube_stateful_set:es-autobooking-data} ) * 100 > 90"
+  query = "avg(last_1h):( avg:kubernetes.cpu.user.total{kube_stateful_set:${var.cluster_name}${local.prefixed_node_group}} / avg:kubernetes.cpu.limits{kube_stateful_set:${var.cluster_name}${local.prefixed_node_group}} ) * 100 > 90"
 
   thresholds = {
     warning           = 75
