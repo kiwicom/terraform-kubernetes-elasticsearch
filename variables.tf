@@ -295,19 +295,13 @@ locals {
 variable "es_monitoring" {
   type        = bool
   default     = false
-  description = "Enables monitoring for your ES cluster - default value is false"
+  description = "Enables infrastructure-level monitoring for your ES cluster - default value is false"
 }
 
 variable "monitoring_slack_alerts_channel" {
   type        = string
   default     = "@slack-alerts"
-  description = "Slack #alerts channel for reporting alerts wiaboutth ElasticSearch."
-}
-
-variable "monitoring_slack_additional_channel" {
-  type        = string
-  default     = ""
-  description = "Optional additional slack channel to report alerts to. You can get integration slack channel name from DataDog UI/Integrations/Integrations/Slack/Configure."
+  description = "Slack #alerts channel for reporting alerts about the underlying infrastructure."
 }
 
 variable "monitoring_pager_duty_platform_infra" {
@@ -320,6 +314,24 @@ variable "monitoring_pager_duty_working_hours" {
   type        = string
   default     = "@pagerduty-DDDevopsLow"
   description = "Platform PagerDuty escalation policy with core time response only."
+}
+
+variable "es_health_monitoring" {
+  type = bool
+  default = false
+  description = "Enable monitoring of ES cluster health, with notifications sent to monitoring_slack_additional_channel and monitoring_pager_duty_team_specific"
+}
+
+variable "notify_infra_about_health" {
+  type = bool
+  default = false
+  description = "Send notification about ES cluster health to infra platform's channels and PD too"
+}
+
+variable "monitoring_slack_additional_channel" {
+  type        = string
+  default     = ""
+  description = "Optional additional slack channel to report all alerts to. You can get integration slack channel name from DataDog UI/Integrations/Integrations/Slack/Configure."
 }
 
 variable "monitoring_pager_duty_team_specific" {
