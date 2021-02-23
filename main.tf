@@ -481,7 +481,7 @@ Host {{host.name}} in cluster ${var.cluster_name}
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_5m):min:elasticsearch.cluster_status{cluster_name:${var.cluster_name}} < 2"
+  query = "avg(last_5m):min:elasticsearch.cluster_status{cluster_name:${var.cluster_name}} < 1"
   thresholds = {
     warning           = 2
     warning_recovery  = 2
