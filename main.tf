@@ -484,9 +484,9 @@ EOF
   query = "avg(last_5m):min:elasticsearch.cluster_status{cluster_name:${var.cluster_name}} < 1"
   thresholds = {
     warning           = 2
-    warning_recovery  = 2
+    warning_recovery  = 1
     critical          = 1
-    critical_recovery = 1
+    critical_recovery = 2
   }
 
   notify_no_data    = false
