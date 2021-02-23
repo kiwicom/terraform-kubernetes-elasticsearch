@@ -355,7 +355,7 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform"]
+  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
 }
 
 resource "datadog_monitor" "es_ready_status_check_pd" {
@@ -379,7 +379,7 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform"]
+  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
 }
 
 resource "datadog_monitor" "es_disk_usage_check" {
@@ -406,7 +406,7 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform"]
+  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
 }
 
 resource "datadog_monitor" "es_heap_usage_check" {
@@ -435,7 +435,7 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform"]
+  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
 }
 
 resource "datadog_monitor" "es_cpu_usage_check" {
@@ -464,7 +464,7 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform"]
+  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
 }
 
 resource "datadog_monitor" "es_cluster_health_check" {
@@ -491,5 +491,5 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform"]
+  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
 }
