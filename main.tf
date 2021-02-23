@@ -468,7 +468,7 @@ EOF
 }
 
 resource "datadog_monitor" "es_cluster_health_check" {
-  count              = (var.es_monitoring && ((local.prefixed_node_group == "-master") || (local.prefixed_node_group == ""))) ? 1 : 0
+  count              = (var.es_health_monitoring && ((local.prefixed_node_group == "-master") || (local.prefixed_node_group == ""))) ? 1 : 0
   name               = "ElasticSearch cluster health."
   type               = "metric alert"
   message            = <<EOF
