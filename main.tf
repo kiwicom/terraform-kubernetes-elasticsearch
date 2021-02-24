@@ -482,6 +482,11 @@ ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
   query = "avg(last_5m):min:elasticsearch.cluster_status{cluster_name:${var.cluster_name}} < 0.9"
+  
+  # Values for health metric:
+  # 2 - green
+  # 1 - yellow
+  # 0 - red
   thresholds = {
     warning           = 1.9
     warning_recovery  = 2
