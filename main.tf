@@ -355,7 +355,7 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform"]
+  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
 }
 
 resource "datadog_monitor" "es_ready_status_check_pd" {
@@ -379,7 +379,7 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform"]
+  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
 }
 
 resource "datadog_monitor" "es_disk_usage_check" {
@@ -406,7 +406,7 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform"]
+  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
 }
 
 resource "datadog_monitor" "es_heap_usage_check" {
@@ -435,7 +435,7 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform"]
+  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
 }
 
 resource "datadog_monitor" "es_cpu_usage_check" {
@@ -464,6 +464,37 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform"]
+  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
 }
 
+resource "datadog_monitor" "es_cluster_health_check" {
+  count              = (var.es_health_monitoring && ((local.prefixed_node_group == "-master") || (local.prefixed_node_group == ""))) ? 1 : 0
+  name               = "ElasticSearch cluster health."
+  type               = "metric alert"
+  message            = <<EOF
+{{#is_warning}}Notify: ${var.notify_infra_about_health ? var.monitoring_slack_alerts_channel : ""} ${var.monitoring_slack_additional_channel}{{/is_warning}}
+{{#is_warning_recovery}}Notify: ${var.notify_infra_about_health ? var.monitoring_slack_alerts_channel : ""} ${var.monitoring_slack_additional_channel}{{/is_warning_recovery}}
+{{#is_alert}}Notify: ${var.notify_infra_about_health ? var.monitoring_slack_alerts_channel : ""} ${var.monitoring_slack_additional_channel} ${var.notify_infra_about_health ? var.monitoring_pager_duty_platform_infra : ""} ${var.monitoring_pager_duty_team_specific}"{{/is_alert}}
+{{#is_alert_recovery}}Notify: ${var.notify_infra_about_health ? var.monitoring_pager_duty_platform_infra : ""} ${var.monitoring_pager_duty_team_specific}"{{/is_alert_recovery}}
+[GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=${var.gcp_project_id})
+Host {{host.name}} in cluster ${var.cluster_name}
+ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
+EOF
+
+  query = "avg(last_5m):min:elasticsearch.cluster_status{cluster_name:${var.cluster_name}} < 0.9"
+  
+  # Values for health metric:
+  # 2 - green
+  # 1 - yellow
+  # 0 - red
+  thresholds = {
+    warning           = 1.9
+    warning_recovery  = 2
+    critical          = 0.9
+    critical_recovery = 1
+  }
+
+  notify_no_data    = false
+
+  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
+}
