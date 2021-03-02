@@ -488,7 +488,9 @@ EOF
   # 1 - yellow
   # 0 - red
   thresholds = {
-    warning           = 1.9
+    # Delay alerting on warning for as long as possible, to reduce the number of 
+    # alerts triggering when a new index with many replicas is created
+    warning           = 1.05
     warning_recovery  = 2
     critical          = 0.9
     critical_recovery = 1
