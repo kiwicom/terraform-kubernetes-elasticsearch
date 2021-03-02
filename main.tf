@@ -346,7 +346,7 @@ Cluster: ${var.cluster_name}${local.prefixed_node_group}
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_5m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}${local.prefixed_node_group},gcp_project_id:${var.gcp_project_id}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}${local.prefixed_node_group},gcp_project_id:${var.gcp_project_id}} > 1"
+  query = "avg(last_5m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}${local.prefixed_node_group},project:${var.gcp_project_id}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}${local.prefixed_node_group},project:${var.gcp_project_id}} > 1"
 
   thresholds = {
     critical          = 1
@@ -370,7 +370,7 @@ Cluster: ${var.cluster_name}${local.prefixed_node_group}
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_15m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}${local.prefixed_node_group},gcp_project_id:${var.gcp_project_id}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}${local.prefixed_node_group},gcp_project_id:${var.gcp_project_id}} > 1"
+  query = "avg(last_15m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}${local.prefixed_node_group},project:${var.gcp_project_id}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}${local.prefixed_node_group},project:${var.gcp_project_id}} > 1"
 
   thresholds = {
     critical          = 1
@@ -453,7 +453,7 @@ Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_1h):( avg:kubernetes.cpu.user.total{kube_stateful_set:${var.cluster_name}${local.prefixed_node_group},gcp_project_id:${var.gcp_project_id}} / avg:kubernetes.cpu.limits{kube_stateful_set:${var.cluster_name}${local.prefixed_node_group},gcp_project_id:${var.gcp_project_id}} ) * 100 > 90"
+  query = "avg(last_1h):( avg:kubernetes.cpu.user.total{kube_stateful_set:${var.cluster_name}${local.prefixed_node_group},project:${var.gcp_project_id}} / avg:kubernetes.cpu.limits{kube_stateful_set:${var.cluster_name}${local.prefixed_node_group},project:${var.gcp_project_id}} ) * 100 > 90"
 
   thresholds = {
     warning           = 75
