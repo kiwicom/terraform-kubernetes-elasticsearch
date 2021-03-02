@@ -346,7 +346,7 @@ Cluster: ${var.cluster_name}${local.prefixed_node_group}
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_5m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}${local.prefixed_node_group}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}${local.prefixed_node_group}} > 1"
+  query = "avg(last_5m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}${local.prefixed_node_group},gcp_project_id:${var.gcp_project_id}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}${local.prefixed_node_group},gcp_project_id:${var.gcp_project_id}} > 1"
 
   thresholds = {
     critical          = 1
@@ -355,7 +355,7 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
+  tags = ["team:platform", "es_cluster_name:${var.cluster_name}", "gcp_project_id:${var.gcp_project_id}"]
 }
 
 resource "datadog_monitor" "es_ready_status_check_pd" {
@@ -370,7 +370,7 @@ Cluster: ${var.cluster_name}${local.prefixed_node_group}
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_15m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}${local.prefixed_node_group}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}${local.prefixed_node_group}} > 1"
+  query = "avg(last_15m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}${local.prefixed_node_group},gcp_project_id:${var.gcp_project_id}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}${local.prefixed_node_group},gcp_project_id:${var.gcp_project_id}} > 1"
 
   thresholds = {
     critical          = 1
@@ -379,7 +379,7 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
+  tags = ["team:platform", "es_cluster_name:${var.cluster_name}", "gcp_project_id:${var.gcp_project_id}"]
 }
 
 resource "datadog_monitor" "es_disk_usage_check" {
@@ -396,7 +396,7 @@ Host {{host.name}} in cluster ${var.cluster_name}
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_15m):( 1 - ( sum:elasticsearch.fs.total.available_in_bytes{cluster_name:${var.cluster_name}} by {host} / sum:elasticsearch.fs.total.total_in_bytes{cluster_name:${var.cluster_name}} by {host} ) ) * 100 > 85"
+  query = "avg(last_15m):( 1 - ( sum:elasticsearch.fs.total.available_in_bytes{es_cluster_name:${var.cluster_name},gcp_project_id:${var.gcp_project_id}} by {host} / sum:elasticsearch.fs.total.total_in_bytes{es_cluster_name:${var.cluster_name},gcp_project_id:${var.gcp_project_id}} by {host} ) ) * 100 > 85"
   thresholds = {
     warning           = 75
     warning_recovery  = 70
@@ -406,7 +406,7 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
+  tags = ["team:platform", "es_cluster_name:${var.cluster_name}", "gcp_project_id:${var.gcp_project_id}"]
 }
 
 resource "datadog_monitor" "es_heap_usage_check" {
@@ -424,7 +424,7 @@ Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_15m):avg:jvm.mem.heap_in_use{cluster_name:${var.cluster_name}} by {host} > 85"
+  query = "avg(last_15m):avg:jvm.mem.heap_in_use{cluster_name:${var.cluster_name},gcp_project_id:${var.gcp_project_id}} by {host} > 85"
 
   thresholds = {
     warning           = 75
@@ -435,7 +435,7 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
+  tags = ["team:platform", "es_cluster_name:${var.cluster_name}", "gcp_project_id:${var.gcp_project_id}"]
 }
 
 resource "datadog_monitor" "es_cpu_usage_check" {
@@ -453,7 +453,7 @@ Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_1h):( avg:kubernetes.cpu.user.total{kube_stateful_set:${var.cluster_name}${local.prefixed_node_group}} / avg:kubernetes.cpu.limits{kube_stateful_set:${var.cluster_name}${local.prefixed_node_group}} ) * 100 > 90"
+  query = "avg(last_1h):( avg:kubernetes.cpu.user.total{kube_stateful_set:${var.cluster_name}${local.prefixed_node_group},gcp_project_id:${var.gcp_project_id}} / avg:kubernetes.cpu.limits{kube_stateful_set:${var.cluster_name}${local.prefixed_node_group},gcp_project_id:${var.gcp_project_id}} ) * 100 > 90"
 
   thresholds = {
     warning           = 75
@@ -464,7 +464,7 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
+  tags = ["team:platform", "es_cluster_name:${var.cluster_name}", "gcp_project_id:${var.gcp_project_id}"]
 }
 
 resource "datadog_monitor" "es_cluster_health_check" {
@@ -481,7 +481,7 @@ Host {{host.name}} in cluster ${var.cluster_name}
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
-  query = "avg(last_5m):min:elasticsearch.cluster_status{cluster_name:${var.cluster_name}} < 0.9"
+  query = "avg(last_5m):min:elasticsearch.cluster_status{cluster_name:${var.cluster_name},gcp_project_id:${var.gcp_project_id}} < 0.9"
   
   # Values for health metric:
   # 2 - green
@@ -496,5 +496,5 @@ EOF
 
   notify_no_data    = false
 
-  tags = ["team:platform", "cluster_name:${var.cluster_name}"]
+  tags = ["team:platform", "es_cluster_name:${var.cluster_name}", "gcp_project_id:${var.gcp_project_id}"]
 }
