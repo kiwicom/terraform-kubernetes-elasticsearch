@@ -331,7 +331,7 @@ variable "notify_infra_about_health" {
 variable "monitoring_slack_additional_channel" {
   type        = string
   default     = ""
-  description = "Optional additional slack channel to report all alerts to. You can get integration slack channel name from DataDog UI/Integrations/Integrations/Slack/Configure."
+  description = "Optional additional slack channel to report warnings to. If PagerDuty is not specified, alerts will be sent to it too. You can get integration slack channel name from DataDog UI/Integrations/Integrations/Slack/Configure."
 }
 
 variable "monitoring_pager_duty_team_specific" {

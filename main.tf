@@ -364,7 +364,7 @@ resource "datadog_monitor" "es_ready_status_check_pd" {
   type               = "metric alert"
   message            = <<EOF
 {{#is_alert}}{{/is_alert}}{{#is_alert_recovery}}{{/is_alert_recovery}} 
-Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel} ${var.monitoring_pager_duty_platform_infra} ${var.monitoring_pager_duty_team_specific}
+Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_pager_duty_team_specific == "" ? var.monitoring_slack_additional_channel : ""} ${var.monitoring_pager_duty_platform_infra} ${var.monitoring_pager_duty_team_specific}
 Cluster: ${var.cluster_name}${local.prefixed_node_group}
 [GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=${var.gcp_project_id})
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
@@ -389,7 +389,7 @@ resource "datadog_monitor" "es_disk_usage_check" {
   message            = <<EOF
 {{#is_warning}}Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel}{{/is_warning}}
 {{#is_warning_recovery}}Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel}{{/is_warning_recovery}}
-{{#is_alert}}Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel} ${var.monitoring_pager_duty_platform_infra} ${var.monitoring_pager_duty_team_specific}"{{/is_alert}}
+{{#is_alert}}Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_pager_duty_team_specific == "" ? var.monitoring_slack_additional_channel : ""} ${var.monitoring_pager_duty_platform_infra} ${var.monitoring_pager_duty_team_specific}"{{/is_alert}}
 {{#is_alert_recovery}}Notify: ${var.monitoring_pager_duty_platform_infra} ${var.monitoring_pager_duty_team_specific}"{{/is_alert_recovery}}
 [GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=${var.gcp_project_id})
 Host {{host.name}} in cluster ${var.cluster_name}
@@ -420,7 +420,7 @@ resource "datadog_monitor" "es_heap_usage_check" {
 {{#is_alert_recovery}}{{/is_alert_recovery}}
 [GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=${var.gcp_project_id})
 Host {{host.name}} in cluster ${var.cluster_name}
-Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel} ${var.monitoring_pager_duty_working_hours} ${var.monitoring_pager_duty_team_specific}
+Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_pager_duty_team_specific == "" ? var.monitoring_slack_additional_channel : ""} ${var.monitoring_pager_duty_working_hours} ${var.monitoring_pager_duty_team_specific}
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
@@ -449,7 +449,7 @@ resource "datadog_monitor" "es_cpu_usage_check" {
 {{#is_alert_recovery}}{{/is_alert_recovery}}
 [GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=${var.gcp_project_id})
 Host {{host.name}} in cluster ${var.cluster_name}
-Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel} ${var.monitoring_pager_duty_working_hours} ${var.monitoring_pager_duty_team_specific}
+Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_pager_duty_team_specific == "" ? var.monitoring_slack_additional_channel : ""} ${var.monitoring_pager_duty_working_hours} ${var.monitoring_pager_duty_team_specific}
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
@@ -474,8 +474,8 @@ resource "datadog_monitor" "es_cluster_health_check" {
   message            = <<EOF
 {{#is_warning}}Notify: ${var.notify_infra_about_health ? var.monitoring_slack_alerts_channel : ""} ${var.monitoring_slack_additional_channel}{{/is_warning}}
 {{#is_warning_recovery}}Notify: ${var.notify_infra_about_health ? var.monitoring_slack_alerts_channel : ""} ${var.monitoring_slack_additional_channel}{{/is_warning_recovery}}
-{{#is_alert}}Notify: ${var.notify_infra_about_health ? var.monitoring_slack_alerts_channel : ""} ${var.monitoring_slack_additional_channel} ${var.notify_infra_about_health ? var.monitoring_pager_duty_platform_infra : ""} ${var.monitoring_pager_duty_team_specific}"{{/is_alert}}
-{{#is_alert_recovery}}Notify: ${var.notify_infra_about_health ? var.monitoring_pager_duty_platform_infra : ""} ${var.monitoring_pager_duty_team_specific}"{{/is_alert_recovery}}
+{{#is_alert}}Notify: ${var.notify_infra_about_health ? var.monitoring_slack_alerts_channel : ""} ${var.monitoring_pager_duty_team_specific == "" ? var.monitoring_slack_additional_channel : ""} ${var.notify_infra_about_health ? var.monitoring_pager_duty_platform_infra : ""} ${var.monitoring_pager_duty_team_specific}"{{/is_alert}}
+{{#is_alert_recovery}}Notify: ${var.notify_infra_about_health ? var.monitoring_pager_duty_platform_infra : ""} ${var.monitoring_pager_duty_team_specific == "" ? var.monitoring_slack_additional_channel : ""} ${var.monitoring_pager_duty_team_specific}"{{/is_alert_recovery}}
 [GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=${var.gcp_project_id})
 Host {{host.name}} in cluster ${var.cluster_name}
 ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
