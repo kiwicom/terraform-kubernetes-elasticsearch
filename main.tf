@@ -348,7 +348,7 @@ EOF
 
   query = "avg(last_5m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}${local.prefixed_node_group},project:${var.gcp_project_id}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}${local.prefixed_node_group},project:${var.gcp_project_id}} > 1"
 
-  thresholds = {
+  monitor_thresholds {
     critical          = 1
     critical_recovery = 0
   }
@@ -372,7 +372,7 @@ EOF
 
   query = "avg(last_15m):avg:kubernetes_state.statefulset.replicas_desired{statefulset:${var.cluster_name}${local.prefixed_node_group},project:${var.gcp_project_id}} - avg:kubernetes_state.statefulset.replicas_ready{statefulset:${var.cluster_name}${local.prefixed_node_group},project:${var.gcp_project_id}} > 1"
 
-  thresholds = {
+  monitor_thresholds {
     critical          = 1
     critical_recovery = 0
   }
@@ -397,7 +397,7 @@ ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
   query = "avg(last_15m):( 1 - ( sum:elasticsearch.fs.total.available_in_bytes{es_cluster_name:${var.cluster_name},gcp_project_id:${var.gcp_project_id}} by {host} / sum:elasticsearch.fs.total.total_in_bytes{es_cluster_name:${var.cluster_name},gcp_project_id:${var.gcp_project_id}} by {host} ) ) * 100 > 85"
-  thresholds = {
+  monitor_thresholds {
     warning           = 75
     warning_recovery  = 70
     critical          = 85
@@ -426,7 +426,7 @@ EOF
 
   query = "avg(last_15m):avg:jvm.mem.heap_in_use{cluster_name:${var.cluster_name},gcp_project_id:${var.gcp_project_id}} by {host} > 85"
 
-  thresholds = {
+  monitor_thresholds {
     warning           = 75
     warning_recovery  = 70
     critical          = 85
@@ -455,7 +455,7 @@ EOF
 
   query = "avg(last_1h):( avg:kubernetes.cpu.user.total{kube_stateful_set:${var.cluster_name}${local.prefixed_node_group},project:${var.gcp_project_id}} / avg:kubernetes.cpu.limits{kube_stateful_set:${var.cluster_name}${local.prefixed_node_group},project:${var.gcp_project_id}} ) * 100 > 90"
 
-  thresholds = {
+  monitor_thresholds {
     warning           = 75
     warning_recovery  = 70
     critical          = 90
@@ -487,7 +487,7 @@ EOF
   # 2 - green
   # 1 - yellow
   # 0 - red
-  thresholds = {
+  monitor_thresholds {
     # Delay alerting on warning for as long as possible, to reduce the number of 
     # alerts triggering when a new index with many replicas is created
     warning           = 1.05
