@@ -139,7 +139,7 @@ resource "helm_release" "elasticsearch" {
 
   set {
     name  = "resources.limits.memory"
-    value = var.resources.requests.memory
+    value = var.resources.limits.memory
   }
 
   set {
