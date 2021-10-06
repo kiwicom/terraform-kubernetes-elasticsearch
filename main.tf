@@ -1,6 +1,9 @@
 locals {
   // Elasticsearch monitoring related local var
   prefixed_node_group = (var.node_group != "") ? "-${var.node_group}" : var.node_group
+  keystore            = concat(var.keystore, var.create_snapshot_bucket ? ["gcs-service-account"] : [])
+  image_pull_secrets  = concat(var.image_pull_secrets, var.create_snapshot_bucket ? ["gitlab"] : [])
+  image               = var.image != "" ? var.image : (var.create_snapshot_bucket ? "eu.gcr.io/kw-registry/platform/elasticsearch-gcs-plugin" : "docker.elastic.co/elasticsearch/elasticsearch")
 }
 
 // original chart -> https://github.com/elastic/helm-charts/tree/master/elasticsearch
@@ -90,7 +93,7 @@ resource "helm_release" "elasticsearch" {
 
   set {
     name  = "image"
-    value = var.image
+    value = local.image
   }
 
   set {
@@ -99,11 +102,11 @@ resource "helm_release" "elasticsearch" {
   }
 
   dynamic "set" {
-    for_each = var.image_pull_secrets
+    for_each = local.image_pull_secrets
 
     content {
       name  = "imagePullSecrets[${set.key}].name"
-      value = var.image_pull_secrets[set.key]
+      value = local.image_pull_secrets[set.key]
     }
   }
 
@@ -323,11 +326,11 @@ resource "helm_release" "elasticsearch" {
   }
 
   dynamic "set" {
-    for_each = var.keystore
+    for_each = local.keystore
 
     content {
       name  = "keystore[${set.key}].secretName"
-      value = var.keystore[set.key]
+      value = local.keystore[set.key]
     }
   }
 }
@@ -335,10 +338,10 @@ resource "helm_release" "elasticsearch" {
 // DataDog monitors definitions
 
 resource "datadog_monitor" "es_ready_status_check_slack" {
-  count              = var.es_monitoring ? 1 : 0
-  name               = "ElasticSearch does not meet desired number of running StatefulSets."
-  type               = "metric alert"
-  message            = <<EOF
+  count   = var.es_monitoring ? 1 : 0
+  name    = "ElasticSearch does not meet desired number of running StatefulSets."
+  type    = "metric alert"
+  message = <<EOF
 {{#is_alert}}{{/is_alert}}{{#is_alert_recovery}}{{/is_alert_recovery}} 
 Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel}
 [GCP project ${var.gcp_project_id}](https://console.cloud.google.com/home/dashboard?project=${var.gcp_project_id})
@@ -353,16 +356,16 @@ EOF
     critical_recovery = 0
   }
 
-  notify_no_data    = false
+  notify_no_data = false
 
   tags = ["team:platform", "es_cluster_name:${var.cluster_name}", "gcp_project_id:${var.gcp_project_id}"]
 }
 
 resource "datadog_monitor" "es_ready_status_check_pd" {
-  count              = var.es_monitoring ? 1 : 0
-  name               = "ElasticSearch does not meet desired number of running StatefulSets."
-  type               = "metric alert"
-  message            = <<EOF
+  count   = var.es_monitoring ? 1 : 0
+  name    = "ElasticSearch does not meet desired number of running StatefulSets."
+  type    = "metric alert"
+  message = <<EOF
 {{#is_alert}}{{/is_alert}}{{#is_alert_recovery}}{{/is_alert_recovery}} 
 Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_pager_duty_team_specific == "" ? var.monitoring_slack_additional_channel : ""} ${var.monitoring_pager_duty_platform_infra} ${var.monitoring_pager_duty_team_specific}
 Cluster: ${var.cluster_name}${local.prefixed_node_group}
@@ -377,16 +380,16 @@ EOF
     critical_recovery = 0
   }
 
-  notify_no_data    = false
+  notify_no_data = false
 
   tags = ["team:platform", "es_cluster_name:${var.cluster_name}", "gcp_project_id:${var.gcp_project_id}"]
 }
 
 resource "datadog_monitor" "es_disk_usage_check" {
-  count              = (var.es_monitoring && ((local.prefixed_node_group == "-master") || (local.prefixed_node_group == ""))) ? 1 : 0
-  name               = "ElasticSearch host high disk usage."
-  type               = "metric alert"
-  message            = <<EOF
+  count   = (var.es_monitoring && ((local.prefixed_node_group == "-master") || (local.prefixed_node_group == ""))) ? 1 : 0
+  name    = "ElasticSearch host high disk usage."
+  type    = "metric alert"
+  message = <<EOF
 {{#is_warning}}Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel}{{/is_warning}}
 {{#is_warning_recovery}}Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_slack_additional_channel}{{/is_warning_recovery}}
 {{#is_alert}}Notify: ${var.monitoring_slack_alerts_channel} ${var.monitoring_pager_duty_team_specific == "" ? var.monitoring_slack_additional_channel : ""} ${var.monitoring_pager_duty_platform_infra} ${var.monitoring_pager_duty_team_specific}"{{/is_alert}}
@@ -404,16 +407,16 @@ EOF
     critical_recovery = 75
   }
 
-  notify_no_data    = false
+  notify_no_data = false
 
   tags = ["team:platform", "es_cluster_name:${var.cluster_name}", "gcp_project_id:${var.gcp_project_id}"]
 }
 
 resource "datadog_monitor" "es_heap_usage_check" {
-  count              = (var.es_monitoring && ((local.prefixed_node_group == "-master") || (local.prefixed_node_group == ""))) ? 1 : 0
-  name               = "ElasticSearch jvm.heap usage."
-  type               = "metric alert"
-  message            = <<EOF
+  count   = (var.es_monitoring && ((local.prefixed_node_group == "-master") || (local.prefixed_node_group == ""))) ? 1 : 0
+  name    = "ElasticSearch jvm.heap usage."
+  type    = "metric alert"
+  message = <<EOF
 {{#is_warning}}{{/is_warning}}
 {{#is_warning_recovery}}{{/is_warning_recovery}}
 {{#is_alert}}{{/is_alert}}
@@ -433,16 +436,16 @@ EOF
     critical_recovery = 75
   }
 
-  notify_no_data    = false
+  notify_no_data = false
 
   tags = ["team:platform", "es_cluster_name:${var.cluster_name}", "gcp_project_id:${var.gcp_project_id}"]
 }
 
 resource "datadog_monitor" "es_cpu_usage_check" {
-  count              = (var.es_monitoring && ((local.prefixed_node_group == "-master") || (local.prefixed_node_group == ""))) ? 1 : 0
-  name               = "ElasticSearch CPU usage."
-  type               = "metric alert"
-  message            = <<EOF
+  count   = (var.es_monitoring && ((local.prefixed_node_group == "-master") || (local.prefixed_node_group == ""))) ? 1 : 0
+  name    = "ElasticSearch CPU usage."
+  type    = "metric alert"
+  message = <<EOF
 {{#is_warning}}{{/is_warning}}
 {{#is_warning_recovery}}{{/is_warning_recovery}}
 {{#is_alert}}{{/is_alert}}
@@ -462,16 +465,16 @@ EOF
     critical_recovery = 75
   }
 
-  notify_no_data    = false
+  notify_no_data = false
 
   tags = ["team:platform", "es_cluster_name:${var.cluster_name}", "gcp_project_id:${var.gcp_project_id}"]
 }
 
 resource "datadog_monitor" "es_cluster_health_check" {
-  count              = (var.es_health_monitoring && ((local.prefixed_node_group == "-master") || (local.prefixed_node_group == ""))) ? 1 : 0
-  name               = "ElasticSearch cluster health."
-  type               = "metric alert"
-  message            = <<EOF
+  count   = (var.es_health_monitoring && ((local.prefixed_node_group == "-master") || (local.prefixed_node_group == ""))) ? 1 : 0
+  name    = "ElasticSearch cluster health."
+  type    = "metric alert"
+  message = <<EOF
 {{#is_warning}}Notify: ${var.notify_infra_about_health ? var.monitoring_slack_alerts_channel : ""} ${var.monitoring_slack_additional_channel}{{/is_warning}}
 {{#is_warning_recovery}}Notify: ${var.notify_infra_about_health ? var.monitoring_slack_alerts_channel : ""} ${var.monitoring_slack_additional_channel}{{/is_warning_recovery}}
 {{#is_alert}}Notify: ${var.notify_infra_about_health ? var.monitoring_slack_alerts_channel : ""} ${var.monitoring_pager_duty_team_specific == "" ? var.monitoring_slack_additional_channel : ""} ${var.notify_infra_about_health ? var.monitoring_pager_duty_platform_infra : ""} ${var.monitoring_pager_duty_team_specific}"{{/is_alert}}
@@ -482,7 +485,7 @@ ES related [wiki](https://kiwi.wiki/handbook/tooling/elasticsearch/)
 EOF
 
   query = "avg(last_5m):min:elasticsearch.cluster_status{cluster_name:${var.cluster_name},gcp_project_id:${var.gcp_project_id}} < 0.9"
-  
+
   # Values for health metric:
   # 2 - green
   # 1 - yellow
@@ -496,7 +499,64 @@ EOF
     critical_recovery = 1
   }
 
-  notify_no_data    = false
+  notify_no_data = false
 
   tags = ["team:platform", "es_cluster_name:${var.cluster_name}", "gcp_project_id:${var.gcp_project_id}"]
+}
+
+resource "google_service_account" "sa" {
+  count        = var.create_snapshot_bucket ? 1 : 0
+  account_id   = "${var.cluster_name}-snapshots"
+  display_name = "${var.cluster_name}-snapshots"
+}
+
+data "google_client_config" "this" {}
+
+module "snapshot_bucket" {
+  count = var.create_snapshot_bucket ? 1 : 0
+
+  source  = "kiwicom/storage-bucket/google"
+  version = "~> 2.0.0" # version >= 2.0.0 and < 2.1.0, e.g. 2.0.X
+
+  bucket_name = "${var.cluster_name}-snapshots"
+  location    = data.google_client_config.this.region
+  owner_info = {
+    responsible_people          = "platform-team"
+    communication_slack_channel = "#plz-platform-infra"
+  }
+  labels = {
+    public = "no"
+    env    = "production"
+    tribe  = "platform"
+  }
+
+  lifecycle_rules = [
+    {
+      action = {
+        type = "Delete"
+      }
+      condition = {
+        age = 50 # in days
+      }
+    }
+  ]
+
+  members_storage_admin = ["serviceAccount:${google_service_account.sa[0].email}"]
+}
+
+resource "google_service_account_key" "sa" {
+  count = var.create_snapshot_bucket ? 1 : 0
+
+  service_account_id = google_service_account.sa[0].name
+}
+
+resource "kubernetes_secret" "es_gcs_service_account" {
+  count = var.create_snapshot_bucket ? 1 : 0
+  metadata {
+    name      = "gcs-service-account"
+    namespace = "storage"
+  }
+  data = {
+    "gcs.client.default.credentials_file" = base64decode(google_service_account_key.sa[0].private_key)
+  }
 }

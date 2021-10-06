@@ -52,12 +52,12 @@ variable "pod_annotations" {
 }
 
 variable "roles" {
-  type        = object({
+  type = object({
     master = bool
     data   = bool
     ingest = bool
   })
-  default     = {
+  default = {
     "master" = null
     "data"   = null
     "ingest" = null
@@ -74,7 +74,7 @@ variable "image_pull_secrets" {
 variable "image" {
   type        = string
   description = "Elasticsearch image"
-  default     = "docker.elastic.co/elasticsearch/elasticsearch"
+  default     = ""
 }
 
 variable "es_version" {
@@ -100,9 +100,9 @@ variable "master_eligible_nodes" {
 }
 
 variable "es_config" {
-  type        = map(string)
-  default     = {
-    "elasticsearch\\.yml": <<EOT
+  type = map(string)
+  default = {
+    "elasticsearch\\.yml" : <<EOT
 xpack.license.self_generated.type: basic
 xpack.security.enabled: false
 EOT
@@ -140,7 +140,7 @@ variable "resources" {
       cpu    = string
       memory = string
     })
-    limits   = object({
+    limits = object({
       cpu    = string
       memory = string
     })
@@ -151,7 +151,7 @@ variable "resources" {
       cpu    = "400m"
       memory = "3Gi"
     }
-    limits   = {
+    limits = {
       cpu    = "1000m"
       memory = "3Gi"
     }
@@ -161,18 +161,18 @@ variable "resources" {
 }
 
 variable "ingress" {
-  type        = object({
-    enabled     = bool
-    hosts       = list(object({
+  type = object({
+    enabled = bool
+    hosts = list(object({
       host = string
       path = string
       port = string
     }))
     annotations = map(string)
   })
-  default     = {
-    enabled     = false
-    hosts       = [
+  default = {
+    enabled = false
+    hosts = [
       {
         host = ""
         path = "/"
@@ -185,7 +185,7 @@ variable "ingress" {
 }
 
 variable "extra_service_ports" {
-  type        = object({
+  type = object({
     ports = list(object({
       name        = string
       port        = string
@@ -193,14 +193,14 @@ variable "extra_service_ports" {
       target_port = string
     }))
   })
-  default     = {
+  default = {
     ports = []
   }
   description = "Configurable service to expose the Elasticsearch service"
 }
 
 variable "extra_configs" {
-  type        = list(object({
+  type = list(object({
     name   = string
     path   = string
     config = string
@@ -227,19 +227,19 @@ variable "keystore" {
   description = "Allows you map Kubernetes secrets into the keystore."
 }
 
-variable "tolerations"{
-  type      = list(object({
-      key      = string
-      operator = string
-      value    = string
-      effect   = string
+variable "tolerations" {
+  type = list(object({
+    key      = string
+    operator = string
+    value    = string
+    effect   = string
   }))
-  default     = []
+  default = []
 }
 
 variable "node_selector" {
-  type        = map(string)
-  default     = {}
+  type    = map(string)
+  default = {}
 }
 
 locals {
@@ -250,7 +250,7 @@ locals {
   }
 
   default_roles = {
-    ""       = {
+    "" = {
       "master" = true
       "data"   = true
       "ingest" = false
@@ -265,7 +265,7 @@ locals {
       "data"   = false
       "ingest" = false
     }
-    "data"   = {
+    "data" = {
       "master" = false
       "data"   = true
       "ingest" = true
@@ -277,17 +277,17 @@ locals {
   master_service       = var.node_group != "" ? "${var.cluster_name}-master" : ""
   replicas             = var.replicas != 0 ? var.replicas : local.default_replicas[var.node_group]
   minimum_master_nodes = floor((var.master_eligible_nodes / 2) + 1)
-  roles                = {
+  roles = {
     "master" = coalesce(var.roles["master"], local.default_roles[var.node_group]["master"])
     "data"   = coalesce(var.roles["data"], local.default_roles[var.node_group]["data"])
     "ingest" = coalesce(var.roles["ingest"], local.default_roles[var.node_group]["ingest"])
   }
-  persistance_enabled  = var.node_group != "client" ? true : false
-  pod_annotations      = merge({
-    "ad\\.datadoghq\\.com/elasticsearch\\.check_names": "[\"elastic\"]",
-    "ad\\.datadoghq\\.com/elasticsearch\\.init_configs": "[{}]",
-    "ad\\.datadoghq\\.com/elasticsearch\\.instances": "[{\"url\": \"http://%%host%%:9200\"\\, \"cluster_stats\": \"true\"\\, \"index_stats\": \"true\"\\, \"pending_task_stats\": \"true\"}]",
-    "ad\\.datadoghq\\.com/elasticsearch\\.tags": " {\"gcp_project_id\": \"${var.gcp_project_id}\"\\, \"es_cluster_name\": \"${var.cluster_name}\"} ",
+  persistance_enabled = var.node_group != "client" ? true : false
+  pod_annotations = merge({
+    "ad\\.datadoghq\\.com/elasticsearch\\.check_names" : "[\"elastic\"]",
+    "ad\\.datadoghq\\.com/elasticsearch\\.init_configs" : "[{}]",
+    "ad\\.datadoghq\\.com/elasticsearch\\.instances" : "[{\"url\": \"http://%%host%%:9200\"\\, \"cluster_stats\": \"true\"\\, \"index_stats\": \"true\"\\, \"pending_task_stats\": \"true\"}]",
+    "ad\\.datadoghq\\.com/elasticsearch\\.tags" : " {\"gcp_project_id\": \"${var.gcp_project_id}\"\\, \"es_cluster_name\": \"${var.cluster_name}\"} ",
   }, var.pod_annotations)
 }
 
@@ -317,14 +317,14 @@ variable "monitoring_pager_duty_working_hours" {
 }
 
 variable "es_health_monitoring" {
-  type = bool
-  default = false
+  type        = bool
+  default     = false
   description = "Enable monitoring of ES cluster health, with notifications sent to monitoring_slack_additional_channel and monitoring_pager_duty_team_specific"
 }
 
 variable "notify_infra_about_health" {
-  type = bool
-  default = false
+  type        = bool
+  default     = false
   description = "Send notification about ES cluster health to infra platform's channels and PD too"
 }
 
@@ -338,4 +338,10 @@ variable "monitoring_pager_duty_team_specific" {
   type        = string
   default     = ""
   description = "Team specific PagerDuty escalation plicy."
+}
+
+variable "create_snapshot_bucket" {
+  type        = bool
+  default     = false
+  description = "Create a GCS bucket for storing snapshots"
 }
