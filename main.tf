@@ -506,8 +506,8 @@ EOF
 
 resource "google_service_account" "sa" {
   count        = var.create_snapshot_bucket ? 1 : 0
-  account_id   = "${var.cluster_name}-snapshots"
-  display_name = "${var.cluster_name}-snapshots"
+  account_id   = "${var.cluster_name}"
+  display_name = "${var.cluster_name}"
 }
 
 data "google_client_config" "this" {}
