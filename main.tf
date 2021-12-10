@@ -30,7 +30,7 @@ resource "helm_release" "elasticsearch" {
 
   set {
     name  = "masterService"
-    value = local.master_service
+    value = "elasticsearch-flight-events-headless"
   }
 
   dynamic "set" {
