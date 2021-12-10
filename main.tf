@@ -8,7 +8,7 @@ locals {
 
 // original chart -> https://github.com/elastic/helm-charts/tree/master/elasticsearch
 resource "helm_release" "elasticsearch" {
-  name      = "${var.cluster_name}-master"
+  name      = local.full_name_override
   chart     = "${path.module}/chart"
   namespace = var.namespace
   timeout   = var.helm_install_timeout
